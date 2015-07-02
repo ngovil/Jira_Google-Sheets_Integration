@@ -1,62 +1,59 @@
 # Jira_Google-Sheets_Integration
 
 
-C_MAX_RESULTS = 1000;
-vals = new Array();
-vals2 = new Array();
-pCol=0;
-sCol=0;
-rCol=0;
-dCol=0;
-ss = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-lRow=ss.getLastRow();
-sheeturl = SpreadsheetApp.getActiveSpreadsheet().getUrl();
+    C_MAX_RESULTS = 1000;
+    vals = new Array();
+    vals2 = new Array();
+    pCol=0;
+    sCol=0;
+    rCol=0;
+    dCol=0;
+    ss = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    lRow=ss.getLastRow();
+    sheeturl = SpreadsheetApp.getActiveSpreadsheet().getUrl();
 
-function onOpen(){
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  jiraConfigure();
-  var menuEntries = [{name: "Configure Headings", functionName: "configureIt"}, {name: "Refresh Now", functionName: "jiraPullManual"}, {name: "Credentials", functionName: "userandpass"}]; 
-  ss.addMenu("Jira", menuEntries);
-                   
- }
+    function onOpen(){
+      var ss = SpreadsheetApp.getActiveSpreadsheet();
+      jiraConfigure();
+      var menuEntries = [{name: "Configure Headings", functionName: "configureIt"}, {name: "Refresh Now", functionName: "jiraPullManual"}, {name: "Credentials", functionName: "userandpass"}]; 
+      ss.addMenu("Jira", menuEntries);
+    }
 
-function jiraConfigure() {
-  
-  PropertiesService.getUserProperties().setProperty("host", "jira.naehas.com");
-
-  PropertiesService.getUserProperties().setProperty("digest", "No");
-}  
-function userandpass(){
-    var userAndPassword = Browser.inputBox("Enter your Jira User id and Password in the form Username:Password. e.g. John.Doe:ilovejira", "Userid:Password", Browser.Buttons.OK_CANCEL);
-  var x = Utilities.base64Encode(userAndPassword);
-  PropertiesService.getUserProperties().setProperty("digest", "Basic " + x);
-}
-function configureIt(){
-  
-  var jiraKey = Browser.inputBox("What is the heading of your JIRA key column? e.g. JIRA", "", Browser.Buttons.OK_CANCEL);
-  PropertiesService.getUserProperties().setProperty("jira" + sheeturl, jiraKey);
-  var includeP = Browser.inputBox("Do you want to include a priority column?", "Yes or No", Browser.Buttons.OK_CANCEL);
-  if(includeP.toLowerCase() == "yes"){
-      var pHead = Browser.inputBox("What is the heading of your priority column? e.g. Priority", "", Browser.Buttons.OK_CANCEL);
-      PropertiesService.getUserProperties().setProperty("priority" + sheeturl, pHead);
-  }
-  var includeS = Browser.inputBox("Do you want to include a status column?", "Yes or No", Browser.Buttons.OK_CANCEL);
-  if(includeS.toLowerCase() == "yes"){
-      var sHead = Browser.inputBox("What is the heading of your status column? e.g. Status", "", Browser.Buttons.OK_CANCEL);
-      PropertiesService.getUserProperties().setProperty("status" + sheeturl, sHead);
-  }
-  var includeR = Browser.inputBox("Do you want to include a fix version column?", "Yes or No", Browser.Buttons.OK_CANCEL);
-  if(includeR.toLowerCase() == "yes"){
-      var rHead = Browser.inputBox("What is the heading of your fix version column? e.g. Release", "", Browser.Buttons.OK_CANCEL);
-      PropertiesService.getUserProperties().setProperty("release" + sheeturl, rHead);
-  }
-  var includeD = Browser.inputBox("Do you want to include a type column?", "Yes or No", Browser.Buttons.OK_CANCEL);
-  if(includeD.toLowerCase() == "yes"){
-      var dHead = Browser.inputBox("What is the heading of your type column? e.g. Dev Category", "", Browser.Buttons.OK_CANCEL);
-      PropertiesService.getUserProperties().setProperty("dev category" + sheeturl, dHead);
-  }
-
-}
+    function jiraConfigure() {
+      PropertiesService.getUserProperties().setProperty("host", "jira.naehas.com");
+      PropertiesService.getUserProperties().setProperty("digest", "No");
+    }
+    
+    function userandpass(){
+      var userAndPassword = Browser.inputBox("Enter your Jira User id and Password in the form Username:Password. e.g. John.Doe:ilovejira", "Userid:Password", Browser.Buttons.OK_CANCEL);
+      var x = Utilities.base64Encode(userAndPassword);
+      PropertiesService.getUserProperties().setProperty("digest", "Basic " + x);
+    }
+    
+    function configureIt(){
+      var jiraKey = Browser.inputBox("What is the heading of your JIRA key column? e.g. JIRA", "", Browser.Buttons.OK_CANCEL);
+      PropertiesService.getUserProperties().setProperty("jira" + sheeturl, jiraKey);
+      var includeP = Browser.inputBox("Do you want to include a priority column?", "Yes or No", Browser.Buttons.OK_CANCEL);
+      if(includeP.toLowerCase() == "yes"){
+        var pHead = Browser.inputBox("What is the heading of your priority column? e.g. Priority", "", Browser.Buttons.OK_CANCEL);
+        PropertiesService.getUserProperties().setProperty("priority" + sheeturl, pHead);
+      }
+      var includeS = Browser.inputBox("Do you want to include a status column?", "Yes or No", Browser.Buttons.OK_CANCEL);
+      if(includeS.toLowerCase() == "yes"){
+          var sHead = Browser.inputBox("What is the heading of your status column? e.g. Status", "", Browser.Buttons.OK_CANCEL);
+           PropertiesService.getUserProperties().setProperty("status" + sheeturl, sHead);
+      }
+      var includeR = Browser.inputBox("Do you want to include a fix version column?", "Yes or No", Browser.Buttons.OK_CANCEL);
+      if(includeR.toLowerCase() == "yes"){
+          var rHead = Browser.inputBox("What is the heading of your fix version column? e.g. Release", "", Browser.Buttons.OK_CANCEL);
+          PropertiesService.getUserProperties().setProperty("release" + sheeturl, rHead);
+      }
+      var includeD = Browser.inputBox("Do you want to include a type column?", "Yes or No", Browser.Buttons.OK_CANCEL);
+      if(includeD.toLowerCase() == "yes"){
+          var dHead = Browser.inputBox("What is the heading of your type column? e.g. Dev Category", "", Browser.Buttons.OK_CANCEL);
+          PropertiesService.getUserProperties().setProperty("dev category" + sheeturl, dHead);
+      }
+    }
 
 
 function jiraPullManual() {
