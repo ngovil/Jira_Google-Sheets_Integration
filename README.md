@@ -1,5 +1,6 @@
 # Jira_Google-Sheets_Integration
 
+
 C_MAX_RESULTS = 1000;
 vals = new Array();
 vals2 = new Array();
@@ -14,7 +15,7 @@ sheeturl = SpreadsheetApp.getActiveSpreadsheet().getUrl();
 function onOpen(){
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   jiraConfigure();
-  var menuEntries = [{name: "Configure Headings", functionName: "configureIt"}, {name: "Refresh Now", functionName:       "jiraPullManual"}, {name: "Credentials", functionName: "userandpass"}]; 
+  var menuEntries = [{name: "Configure Headings", functionName: "configureIt"}, {name: "Refresh Now", functionName: "jiraPullManual"}, {name: "Credentials", functionName: "userandpass"}]; 
   ss.addMenu("Jira", menuEntries);
                    
  }
