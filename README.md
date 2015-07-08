@@ -6,7 +6,7 @@ Go to Tools => Script Editor...
 
 Create a script for Blank Project.
 
-Delete all the code and paste in the code from the firstCode.gs page.
+Delete all the code currently in the page and paste in the code from the firstCode.gs page.
 
 Save the project and name it "JIRA".
 
