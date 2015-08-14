@@ -13,12 +13,27 @@ lRow=ss.getLastRow();
 sheeturl = SpreadsheetApp.getActiveSpreadsheet().getUrl();
 bool=true;
 
-function onOpen(){
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+
+
+function onOpen(e){
+  //var ss = SpreadsheetApp.getActiveSpreadsheet();
+  /*var ui = SpreadsheetApp.getUi();
+  // Or DocumentApp or FormApp.
+  ui.createMenu('Jira')
+      .addItem('Configure Headings', 'configureApp')
+      .addItem('Credentials', 'configurePassword')
+      .addItem('Refresh Now', 'jiraPullManual')
+      .addToUi();*/
   jiraConfigure();
-  var menuEntries = [{name: "Configure Headings", functionName: "configureApp"}, {name: "Credentials", functionName: "configurePassword"}, {name: "Refresh Now", functionName: "jiraPullManual"}]; 
-  ss.addMenu("Jira", menuEntries);
+  //var menuEntries = [{name: "Configure Headings", functionName: "configureApp"}, {name: "Credentials", functionName: "configurePassword"}, {name: "Refresh Now", functionName: "jiraPullManual"}]; 
+  //ss.addMenu("Jira", menuEntries);
+  var menu = SpreadsheetApp.getUi().createMenu("Jira");
+  menu.addItem("Configure Headings", "configureApp");
+  menu.addItem("Credentials", "configurePassword");
+  menu.addItem("Refresh Now", "jiraPullManual");
+  menu.addToUi();
 }
+
 
 function jiraConfigure() {
   PropertiesService.getUserProperties().setProperty("host", "jira.naehas.com");
@@ -74,6 +89,7 @@ function submitPassword(e){
   var password = e.parameter.password;
   var x = Utilities.base64Encode(username + ":" + password);
   PropertiesService.getUserProperties().setProperty("digest", "Basic " + x);
+  sleep(100);
   var app = UiApp.getActiveApplication();
   app.close();
   return app;
