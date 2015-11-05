@@ -14,7 +14,8 @@ bool=true;
 
 function onOpen(e){
 
-  var menu = SpreadsheetApp.getUi().createAddonMenu();
+  //var menu = SpreadsheetApp.getUi().createAddonMenu();
+  var menu = SpreadsheetApp.getUi().createMenu("JIRA");
     menu.addItem("Configure Headings", "configureApp");
     menu.addItem("Credentials", "configurePassword");
     menu.addItem("Refresh Now", "jiraPullManual");
@@ -159,6 +160,7 @@ function jiraPullManual() {
         var start = new Date().getTime();
         var key=0;
         var jira = PropertiesService.getUserProperties().getProperty("jira"+ sheeturl);
+      
         for(var a=0; a<jiraHeads.length; a++){
             for(var r=0; r<ss.getLastColumn(); r++){
               if(ss.getRange(1,r+1,1,r+1).getCell(1, 1).getValue().toLowerCase() == colHeads[a].toLowerCase()){
@@ -179,7 +181,7 @@ function jiraPullManual() {
         }
         lRow = inter-1;
         vals = ss.getRange(2, key, lRow, key).getValues();
-        vals2 = vals;
+        vals2 = vals; 
         var temp = new Array();
         for(var i=0; i<lRow; i++){
             if(vals[i][0] != ""){
@@ -239,20 +241,24 @@ function jiraPullManual() {
 }  
 
 function jiraPull() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var ss = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     var lRow=ss.getLastRow();
     var sheeturl = SpreadsheetApp.getActiveSpreadsheet().getUrl();
-    var data = getStories();
-    if (data == "") {
-        return;
-    }
+    var y = new Array();
+    var headings = jiraHeads;
     if(colHeads.length != colNums.length){
         Browser.msgBox("Error pulling data from Jira - aborting now. \\n \\n Please check if you have correctly named your headings.");
         return;
     }
-    var headings = jiraHeads;
-    var y = new Array();
-    for (var i=0;i<vals2.length;i++) {
+   for(var divideby = 0; divideby < Math.ceil(vals.length/50); divideby++){
+    var data = getStories(divideby);
+    if (data == "") {
+        return;
+    }
+    if(divideby*50+50>=vals.length) var numberofrepeats = vals.length;
+    else numberofrepeats = divideby*50 + 50;
+     
+    for (var i=divideby*50;i<numberofrepeats;i++) {
         if(vals2[i][0].indexOf("FRED")==-1){
             var temp = new Array();
             for(var a=0; a<colHeads.length; a++) temp.push("");
@@ -268,7 +274,8 @@ function jiraPull() {
             var test = getStory(d,headings);
             y.push(getStory(d,headings));
         }
-    } 
+    }
+} 
     var last = lRow;
     if (y.length>0) {
         for(var k=0; k<y.length; k++){
@@ -278,7 +285,7 @@ function jiraPull() {
     }
 }
 
-function getStories() {
+function getStories(divideby) {
   var ss = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     var lRow=ss.getLastRow();
     var sheeturl = SpreadsheetApp.getActiveSpreadsheet().getUrl();
@@ -288,10 +295,13 @@ function getStories() {
     while (data.startAt + data.maxResults < data.total) {
         Logger.log("Making request for %s entries", C_MAX_RESULTS);
         var inter = ["search?jql="];
-        for (var i = 0; i < vals.length; i++) {
-            if(i==vals.length-1) inter.push("issue%20%3D%20", vals[i][0], "%20order%20by%20rank%20&maxResults=", C_MAX_RESULTS, "&startAt=", startAt);
+        if(divideby*50+50>=vals.length) var numberofrepeats = vals.length;
+        else numberofrepeats = divideby*50 + 50;
+        for (var i = divideby*50; i < numberofrepeats; i++) {
+            if(i==numberofrepeats-1) inter.push("issue%20%3D%20", vals[i][0], "%20order%20by%20rank%20&maxResults=", C_MAX_RESULTS, "&startAt=", startAt);
             else inter.push("issue%20%3D%20", vals[i][0], "%20or%20");
         }
+      
         var interStr = inter.join("");
         var temp = getDataForAPI(interStr);
         if(temp == "") return temp;
