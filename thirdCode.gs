@@ -250,15 +250,15 @@ function jiraPull() {
         Browser.msgBox("Error pulling data from Jira - aborting now. \\n \\n Please check if you have correctly named your headings.");
         return;
     }
-   for(var divideby = 0; divideby < Math.ceil(vals.length/50); divideby++){
+   for(var divideby = 0; divideby < Math.ceil(vals.length/30); divideby++){
     var data = getStories(divideby);
     if (data == "") {
         return;
     }
-    if(divideby*50+50>=vals.length) var numberofrepeats = vals.length;
-    else numberofrepeats = divideby*50 + 50;
+    if(divideby*30+30>=vals.length) var numberofrepeats = vals.length;
+    else numberofrepeats = divideby*30 + 30;
      
-    for (var i=divideby*50;i<numberofrepeats;i++) {
+    for (var i=divideby*30;i<numberofrepeats;i++) {
         if(vals2[i][0].indexOf("FRED")==-1){
             var temp = new Array();
             for(var a=0; a<colHeads.length; a++) temp.push("");
@@ -295,9 +295,9 @@ function getStories(divideby) {
     while (data.startAt + data.maxResults < data.total) {
         Logger.log("Making request for %s entries", C_MAX_RESULTS);
         var inter = ["search?jql="];
-        if(divideby*50+50>=vals.length) var numberofrepeats = vals.length;
-        else numberofrepeats = divideby*50 + 50;
-        for (var i = divideby*50; i < numberofrepeats; i++) {
+        if(divideby*30+30>=vals.length) var numberofrepeats = vals.length;
+        else numberofrepeats = divideby*30 + 30;
+        for (var i = divideby*30; i < numberofrepeats; i++) {
             if(i==numberofrepeats-1) inter.push("issue%20%3D%20", vals[i][0], "%20order%20by%20rank%20&maxResults=", C_MAX_RESULTS, "&startAt=", startAt);
             else inter.push("issue%20%3D%20", vals[i][0], "%20or%20");
         }
