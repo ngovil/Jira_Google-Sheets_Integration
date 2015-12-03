@@ -280,8 +280,10 @@ function jiraPull() {
     if (y.length>0) {
         for(var k=0; k<y.length; k++){
             var x=0;
-            for(var a=0; a<colHeads.length; a++) ss.getRange(k+2, colNums[a], k+2, colNums[a]).getCell(1,1).setValue(y[k][a]);
-        }
+            for(var a=0; a<colHeads.length; a++){
+              if(y[k][a].length > 0) ss.getRange(k+2, colNums[a], k+2, colNums[a]).getCell(1,1).setValue(y[k][a]);
+            }
+        } 
     }
 }
 
