@@ -8,33 +8,22 @@ pCol=0;
 sCol=0;
 rCol=0;
 dCol=0;
-ss = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-lRow=ss.getLastRow();
-sheeturl = SpreadsheetApp.getActiveSpreadsheet().getUrl();
+
 bool=true;
 
-function onInstall(){
-  onOpen();
+
+function onOpen(e){
+
+  //var menu = SpreadsheetApp.getUi().createAddonMenu();
+  var menu = SpreadsheetApp.getUi().createMenu("JIRA");
+    menu.addItem("Configure Headings", "configureApp");
+    menu.addItem("Credentials", "configurePassword");
+    menu.addItem("Refresh Now", "jiraPullManual");
+    menu.addToUi();
+    jiraConfigure();
+
 }
 
-function onOpen(){
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  /*var ui = SpreadsheetApp.getUi();
-  // Or DocumentApp or FormApp.
-  ui.createMenu('Jira')
-      .addItem('Configure Headings', 'configureApp')
-      .addItem('Credentials', 'configurePassword')
-      .addItem('Refresh Now', 'jiraPullManual')
-      .addToUi();*/
-  jiraConfigure();
-  //var menuEntries = [{name: "Configure Headings", functionName: "configureApp"}, {name: "Credentials", functionName: "configurePassword"}, {name: "Refresh Now", functionName: "jiraPullManual"}]; 
-  //ss.addMenu("Jira", menuEntries);
-  var menu = SpreadsheetApp.getUi().createMenu("Jira");
-  menu.addItem("Configure Headings", "configureApp");
-  menu.addItem("Credentials", "configurePassword");
-  menu.addItem("Refresh Now", "jiraPullManual");
-  menu.addToUi();
-}
 
 function jiraConfigure() {
   PropertiesService.getUserProperties().setProperty("host", "jira.naehas.com");
@@ -56,14 +45,12 @@ function configureApp(){
     panel.add(app.createButton('Submit', handler));
     app.add(panel);
     mydoc.show(app);
-    //var jiraKey = Browser.inputBox("What is the heading of your JIRA key column? e.g. JIRA", "", Browser.Buttons.OK_CANCEL);
-    //PropertiesService.getUserProperties().setProperty("jira" + sheeturl, jiraKey);
 }
 
 function submitJIRA(e){
   var label = e.parameter.jira;
+  var sheeturl = SpreadsheetApp.getActiveSpreadsheet().getUrl();
   PropertiesService.getUserProperties().setProperty("jira" + sheeturl, label);
-  //ss.getRange(40,1,40,1).getCell(1,1).setValue(label);
   var app = UiApp.getActiveApplication();
   app.close();
   doGet();
@@ -81,8 +68,6 @@ function configurePassword(){
     panel.add(app.createButton('Submit', handler));
     app.add(panel);
     mydoc.show(app);
-    //var jiraKey = Browser.inputBox("What is the heading of your JIRA key column? e.g. JIRA", "", Browser.Buttons.OK_CANCEL);
-    //PropertiesService.getUserProperties().setProperty("jira" + sheeturl, jiraKey);
 }
 
 function submitPassword(e){
@@ -97,17 +82,16 @@ function submitPassword(e){
 }
 
 function doGet() {
-    //var jiraKey = Browser.inputBox("What is the heading of your JIRA key column? e.g. JIRA", "", Browser.Buttons.OK_CANCEL);
-    //PropertiesService.getUserProperties().setProperty("jira" + sheeturl, jiraKey);
+    var ss = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var lRow=ss.getLastRow();
+    var sheeturl = SpreadsheetApp.getActiveSpreadsheet().getUrl();
     var LIST = ["Priority", "Status", "fixVersions", "issueType", "Summary", "Description", "dueDate", "Resolution", "Reporter", "Assignee", "Labels", "Customers Impacted"];
     var mydoc = SpreadsheetApp.getActiveSpreadsheet();
     var app = UiApp.createApplication().setTitle("Jira Headings").setWidth(250).setHeight(420);
     var panel = app.createVerticalPanel().setId('panel');
-    // Store the number of items in the array (LIST)
     app.add(app.createLabel("Please check the JIRA headings you wish to include and type in the corresponding column headings."));
     app.add(app.createHTML("<br/>"));
     panel.add(app.createHidden('checkbox_total', LIST.length));
-    // add 1 checkbox + 1 hidden field per item 
     for(var i = 0; i < LIST.length; i++){
       var checkbox = app.createCheckBox().setName('checkbox_isChecked_'+i).setText(LIST[i]);
       var hidden = app.createHidden('checkbox_value_'+i, LIST[i]);
@@ -125,11 +109,13 @@ function doGet() {
 }
 
 function submit(e){
+  var ss = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var lRow=ss.getLastRow();
+    var sheeturl = SpreadsheetApp.getActiveSpreadsheet().getUrl();
   var numberOfItems = e.parameter.checkbox_total;
   var itemsSelected = new Array();
   var columnsSelected = new Array();
   var app = UiApp.getActiveApplication();
-  // for each item, if it is checked / selected, add it to itemsSelected
   for(var i = 0; i < numberOfItems; i++){
     if(e.parameter['checkbox_isChecked_'+i] == 'true'){
       if(e.parameter['checkbox_value_'+i] == "Customers Impacted") itemsSelected.push("customfield_10024");
@@ -160,6 +146,9 @@ function sleep(milliseconds) {
 
 
 function jiraPullManual() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var lRow=ss.getLastRow();
+    var sheeturl = SpreadsheetApp.getActiveSpreadsheet().getUrl();
     if(PropertiesService.getUserProperties().getProperty("colHeads" + sheeturl)!=null){
        jiraHeads=PropertiesService.getUserProperties().getProperty("jiraHeads" + sheeturl).split(",");
        colHeads=PropertiesService.getUserProperties().getProperty("colHeads" + sheeturl).split(",");
@@ -171,6 +160,7 @@ function jiraPullManual() {
         var start = new Date().getTime();
         var key=0;
         var jira = PropertiesService.getUserProperties().getProperty("jira"+ sheeturl);
+      
         for(var a=0; a<jiraHeads.length; a++){
             for(var r=0; r<ss.getLastColumn(); r++){
               if(ss.getRange(1,r+1,1,r+1).getCell(1, 1).getValue().toLowerCase() == colHeads[a].toLowerCase()){
@@ -191,7 +181,7 @@ function jiraPullManual() {
         }
         lRow = inter-1;
         vals = ss.getRange(2, key, lRow, key).getValues();
-        vals2 = vals;
+        vals2 = vals; 
         var temp = new Array();
         for(var i=0; i<lRow; i++){
             if(vals[i][0] != ""){
@@ -244,7 +234,6 @@ function jiraPullManual() {
         vals=temp;
         vals2=temp2;
         jiraPull();
-        //ss.getRange(40,1,40,1).getCell(1,1).setValue(new Date().getTime() - start);
     }
     }else{
       Browser.msgBox("Please enter your credentials.");
@@ -252,17 +241,24 @@ function jiraPullManual() {
 }  
 
 function jiraPull() {
-    var data = getStories();
-    if (data == "") {
-        return;
-    }
+    var ss = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var lRow=ss.getLastRow();
+    var sheeturl = SpreadsheetApp.getActiveSpreadsheet().getUrl();
+    var y = new Array();
+    var headings = jiraHeads;
     if(colHeads.length != colNums.length){
         Browser.msgBox("Error pulling data from Jira - aborting now. \\n \\n Please check if you have correctly named your headings.");
         return;
     }
-    var headings = jiraHeads;
-    var y = new Array();
-    for (var i=0;i<vals2.length;i++) {
+   for(var divideby = 0; divideby < Math.ceil(vals.length/30); divideby++){
+    var data = getStories(divideby);
+    if (data == "") {
+        return;
+    }
+    if(divideby*30+30>=vals.length) var numberofrepeats = vals.length;
+    else numberofrepeats = divideby*30 + 30;
+     
+    for (var i=divideby*30;i<numberofrepeats;i++) {
         if(vals2[i][0].indexOf("FRED")==-1){
             var temp = new Array();
             for(var a=0; a<colHeads.length; a++) temp.push("");
@@ -278,29 +274,34 @@ function jiraPull() {
             var test = getStory(d,headings);
             y.push(getStory(d,headings));
         }
-    } 
+    }
+} 
     var last = lRow;
     if (y.length>0) {
         for(var k=0; k<y.length; k++){
             var x=0;
-            for(var a=0; a<colHeads.length; a++){
-              if(y[k][a].length > 0) ss.getRange(k+2, colNums[a], k+2, colNums[a]).getCell(1,1).setValue(y[k][a]);
-            }
+            for(var a=0; a<colHeads.length; a++) ss.getRange(k+2, colNums[a], k+2, colNums[a]).getCell(1,1).setValue(y[k][a]);
         }
     }
 }
 
-function getStories() {
+function getStories(divideby) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var lRow=ss.getLastRow();
+    var sheeturl = SpreadsheetApp.getActiveSpreadsheet().getUrl();
     var allData = {issues:[]};
     var data = {startAt:0,maxResults:0,total:1};
     var startAt = 0;
     while (data.startAt + data.maxResults < data.total) {
         Logger.log("Making request for %s entries", C_MAX_RESULTS);
         var inter = ["search?jql="];
-        for (var i = 0; i < vals.length; i++) {
-            if(i==vals.length-1) inter.push("issue%20%3D%20", vals[i][0], "%20order%20by%20rank%20&maxResults=", C_MAX_RESULTS, "&startAt=", startAt);
+        if(divideby*30+30>=vals.length) var numberofrepeats = vals.length;
+        else numberofrepeats = divideby*30 + 30;
+        for (var i = divideby*30; i < numberofrepeats; i++) {
+            if(i==numberofrepeats-1) inter.push("issue%20%3D%20", vals[i][0], "%20order%20by%20rank%20&maxResults=", C_MAX_RESULTS, "&startAt=", startAt);
             else inter.push("issue%20%3D%20", vals[i][0], "%20or%20");
         }
+      
         var interStr = inter.join("");
         var temp = getDataForAPI(interStr);
         if(temp == "") return temp;
@@ -312,6 +313,9 @@ function getStories() {
 }  
 
 function getDataForAPI(path) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var lRow=ss.getLastRow();
+    var sheeturl = SpreadsheetApp.getActiveSpreadsheet().getUrl();
     var url = "https://" + PropertiesService.getUserProperties().getProperty("host") + "/rest/api/2/" + path;
     var digestfull = PropertiesService.getUserProperties().getProperty("digest");
     var headers = { "Accept":"application/json", "Content-Type":"application/json", "method": "GET", "headers": {"Authorization": digestfull}, "muteHttpExceptions": true};
@@ -333,7 +337,6 @@ function getDataForAPI(path) {
           }
           Browser.msgBox("Please check the following key(s): \\n" + inter2);
         }
-        //Browser.msgBox("Error retrieving data for url" + url + ":" + resp.getContentText());
         return "";
     } else {
         return resp.getContentText();
@@ -341,6 +344,9 @@ function getDataForAPI(path) {
 } 
 
 function getStory(data,headings) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var lRow=ss.getLastRow();
+    var sheeturl = SpreadsheetApp.getActiveSpreadsheet().getUrl();
     var story = [];
     for (var i = 0;i<headings.length;i++) {
         if (headings[i] !== "" && getDataForHeading(data,headings[i].toLowerCase()) != null) {
@@ -391,6 +397,9 @@ function getStory(data,headings) {
 }  
 
 function getDataForHeading(data,heading) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var lRow=ss.getLastRow();
+    var sheeturl = SpreadsheetApp.getActiveSpreadsheet().getUrl();
     if (data.hasOwnProperty(heading)) {
         return data[heading];
     }else if (data.fields.hasOwnProperty(heading)) {
