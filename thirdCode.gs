@@ -255,10 +255,25 @@ function jiraPull() {
     if (data == "") {
         return;
     }
-    if(divideby*30+30>=vals.length) var numberofrepeats = vals.length;
-    else numberofrepeats = divideby*30 + 30;
+    var numberofrepeats = -1;
+    var beginat = -1;
+    if(divideby*30+30>=vals.length) numberofrepeats = vals.length;
+    else{
+       for(var i=0; i<vals2.length; i++){
+         if(vals2[i][0] === vals[divideby*30 + 30][0]){
+           numberofrepeats = i;
+           i=vals2.length;
+         }
+       }
+     }
+     for(var i=0; i<vals2.length; i++){
+         if(vals2[i][0] === vals[divideby*30][0]){
+           beginat = i;
+           i=vals2.length;
+         }
+     }
      
-    for (var i=divideby*30;i<numberofrepeats;i++) {
+    for (var i=beginat;i<numberofrepeats;i++) {
         if(vals2[i][0].indexOf("FRED")==-1){
             var temp = new Array();
             for(var a=0; a<colHeads.length; a++) temp.push("");
