@@ -1,6 +1,6 @@
 # Jira_Google-Sheets_Integration
 
-You first access the google sheets page where you wish to add the script.
+You first access the Google Sheet where you wish to add the script.
 
 Go to Tools => Script Editor...
 
@@ -8,13 +8,13 @@ Create a script for Blank Project.
 
 Delete all the code currently in the page and paste in the code from the thirdCode.gs page.
 
-Save the project and name it "JIRA".
+Save the project.
 
-Go back to the google sheets page and reload.
+Go back to the Google Sheet and reload.
 
-There should now be another category in the navigation bar called "Jira".
+There should now be another category in the navigation bar called "JIRA".
 
-You are now ready to begin using the Jira integration applet.
+You are now ready to begin using the add-on.
 
 
 
