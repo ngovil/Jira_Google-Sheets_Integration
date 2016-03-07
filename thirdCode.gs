@@ -8,7 +8,7 @@ pCol=0;
 sCol=0;
 rCol=0;
 dCol=0;
-
+columns = new Array();
 bool=true;
 
 
@@ -21,9 +21,17 @@ function onOpen(e){
     menu.addItem("Refresh Now", "jiraPullManual");
     menu.addToUi();
     jiraConfigure();
-
+    findColHeads();
 }
 
+function findColHeads(){
+  var ss = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var cols = ss.getRange(1,1,1,ss.getLastColumn()).getValues();
+  columns.length = 0;
+  for(var i=0; i<cols[0].length; i++){
+      if(cols[0][i].replace(" ", "") != "") columns.push(cols[0][i]);
+  }
+}
 
 function jiraConfigure() {
   PropertiesService.getUserProperties().setProperty("host", "jira.naehas.com");
@@ -40,7 +48,7 @@ function configureApp(){
     var mydoc = SpreadsheetApp.getActiveSpreadsheet();
     var app = UiApp.createApplication().setTitle("What is the heading of your JIRA key column? e.g. JIRA").setHeight(75);
     var panel = app.createVerticalPanel().setId('panel');
-    panel.add(app.createTextBox().setName("jira"));
+    panel.add(app.createTextBox().setName('jira').setText('JIRA'));
     var handler = app.createServerHandler('submitJIRA').addCallbackElement(panel);
     panel.add(app.createButton('Submit', handler));
     app.add(panel);
@@ -84,6 +92,7 @@ function submitPassword(e){
 function doGet() {
     var ss = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     var lRow=ss.getLastRow();
+    findColHeads();
     var sheeturl = SpreadsheetApp.getActiveSpreadsheet().getUrl();
     var LIST = ["Priority", "Status", "fixVersions", "issueType", "Summary", "Description", "dueDate", "Resolution", "Reporter", "Assignee", "Labels", "Customers Impacted"];
     var mydoc = SpreadsheetApp.getActiveSpreadsheet();
@@ -95,8 +104,13 @@ function doGet() {
     for(var i = 0; i < LIST.length; i++){
       var checkbox = app.createCheckBox().setName('checkbox_isChecked_'+i).setText(LIST[i]);
       var hidden = app.createHidden('checkbox_value_'+i, LIST[i]);
-      var textbox = app.createTextBox().setName('column_value_'+i);
-      panel.add(checkbox).add(hidden).add(textbox);
+      var dropDown = app.createListBox().setName('column_value_'+i);
+      dropDown.addItem("");
+      for(var a=0; a<columns.length; a++){
+        var temp = columns[a];
+         dropDown.addItem(temp);
+      }
+      panel.add(checkbox).add(hidden).add(dropDown);
     }
     var handler = app.createServerHandler('submit').addCallbackElement(panel);
     
