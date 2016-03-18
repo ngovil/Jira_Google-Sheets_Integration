@@ -6,7 +6,7 @@ Go to Tools => Script Editor...
 
 Create a script for Blank Project.
 
-Delete all the code currently in the page and paste in the code from the thirdCode.gs page.
+Delete all the code currently in the page and paste in the code from the code.gs page.
 
 Save the project.
 
