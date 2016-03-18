@@ -10,6 +10,7 @@ rCol=0;
 dCol=0;
 columns = new Array();
 bool=true;
+batchsize = 30;
 
 
 function onOpen(e){
@@ -91,7 +92,6 @@ function submitPassword(e){
 
 function doGet() {
     var ss = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    var lRow=ss.getLastRow();
     findColHeads();
     var sheeturl = SpreadsheetApp.getActiveSpreadsheet().getUrl();
     var LIST = ["Priority", "Status", "fixVersions", "issueType", "Summary", "Description", "dueDate", "Resolution", "Reporter", "Assignee", "Labels", "Customers Impacted"];
@@ -124,8 +124,7 @@ function doGet() {
 
 function submit(e){
   var ss = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    var lRow=ss.getLastRow();
-    var sheeturl = SpreadsheetApp.getActiveSpreadsheet().getUrl();
+  var sheeturl = SpreadsheetApp.getActiveSpreadsheet().getUrl();
   var numberOfItems = e.parameter.checkbox_total;
   var itemsSelected = new Array();
   var columnsSelected = new Array();
@@ -197,6 +196,7 @@ function jiraPullManual() {
         vals = ss.getRange(2, key, lRow, key).getValues();
         vals2 = vals; 
         var temp = new Array();
+        var temp2 = new Array();
         for(var i=0; i<lRow; i++){
             if(vals[i][0] != ""){
                 if(vals[i][0].indexOf(" ")>-1){
@@ -209,40 +209,21 @@ function jiraPullManual() {
                     var t = vals[i][0].split(",");
                     for(var k=0; k<t.length-1; k++){
                         ss.insertRowAfter(i+2);
-                        var temprange = ss.getRange(i+2, 1, i+2, ss.getLastColumn()).getValues();
-                        for(var l=0; l<temprange[0].length; l++) ss.getRange(i+3+k, l+1, i+3+k, l+1).getCell(1,1).setValue(temprange[0][l]);
                     }
                     for(var k=0; k<t.length; k++){ 
                         var work = new Array();
                         work.push(t[k]);
                         for(var l=1; l<vals[0].length; l++) work.push("");
                         temp.push(work);
+                        temp2.push(work);
                     }
                     for(var k=0; k<t.length; k++) ss.getRange(i+2+k, key, i+2+k, key).getCell(1,1).setValue(t[k]);
-                    var test = ss.getRange(i+2, key, i+2+t.length-1, key).getValues();
                 }else{
                      temp.push(vals[i]);
-                }
-            }
-        }
-        var temp2 = new Array();
-        for(var i=0; i<lRow; i++){
-            if(vals2[i][0].indexOf(" ")>-1){
-                vals2[i][0] = vals2[i][0].replace(/\s/g, '');
-            }
-            if(vals2[i][0].indexOf("jira.naehas.com")>-1){
-                vals2[i][0] = vals2[i][0].replace("https://jira.naehas.com/browse/", "");
-            }
-            if(vals2[i][0].indexOf(",")>-1){
-                var t = vals2[i][0].split(",");
-                for(var k=0; k<t.length; k++){ 
-                    var work = new Array();
-                    work.push(t[k]);
-                    for(var l=1; l<vals2[0].length; l++) work.push("");
-                    temp2.push(work);
+                     temp2.push(vals[i]);
                 }
             }else{
-                temp2.push(vals2[i]);
+              temp2.push(vals[i]);
             }
         }
         vals=temp;
@@ -256,7 +237,6 @@ function jiraPullManual() {
 
 function jiraPull() {
     var ss = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    var lRow=ss.getLastRow();
     var sheeturl = SpreadsheetApp.getActiveSpreadsheet().getUrl();
     var y = new Array();
     var headings = jiraHeads;
@@ -264,24 +244,24 @@ function jiraPull() {
         Browser.msgBox("Error pulling data from Jira - aborting now. \\n \\n Please check if you have correctly named your headings.");
         return;
     }
-   for(var divideby = 0; divideby < Math.ceil(vals.length/30); divideby++){
+   for(var divideby = 0; divideby < Math.ceil(vals.length/batchsize); divideby++){
     var data = getStories(divideby);
     if (data == "") {
         return;
     }
     var numberofrepeats = -1;
     var beginat = -1;
-    if(divideby*30+30>=vals.length) numberofrepeats = vals.length;
+    if(divideby*batchsize+batchsize>=vals.length) numberofrepeats = vals.length;
     else{
        for(var i=0; i<vals2.length; i++){
-         if(vals2[i][0] === vals[divideby*30 + 30][0]){
+         if(vals2[i][0] === vals[divideby*batchsize + batchsize][0]){
            numberofrepeats = i;
            i=vals2.length;
          }
        }
      }
      for(var i=0; i<vals2.length; i++){
-         if(vals2[i][0] === vals[divideby*30][0]){
+         if(vals2[i][0] === vals[divideby*batchsize][0]){
            beginat = i;
            i=vals2.length;
          }
@@ -305,7 +285,6 @@ function jiraPull() {
         }
     }
 } 
-    var last = lRow;
     if (y.length>0) {
         for(var k=0; k<y.length; k++){
             var x=0;
@@ -317,35 +296,31 @@ function jiraPull() {
 }
 
 function getStories(divideby) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    var lRow=ss.getLastRow();
+    var ss = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     var sheeturl = SpreadsheetApp.getActiveSpreadsheet().getUrl();
     var allData = {issues:[]};
     var data = {startAt:0,maxResults:0,total:1};
     var startAt = 0;
-    while (data.startAt + data.maxResults < data.total) {
-        Logger.log("Making request for %s entries", C_MAX_RESULTS);
-        var inter = ["search?jql="];
-        if(divideby*30+30>=vals.length) var numberofrepeats = vals.length;
-        else numberofrepeats = divideby*30 + 30;
-        for (var i = divideby*30; i < numberofrepeats; i++) {
-            if(i==numberofrepeats-1) inter.push("issue%20%3D%20", vals[i][0], "%20order%20by%20rank%20&maxResults=", C_MAX_RESULTS, "&startAt=", startAt);
-            else inter.push("issue%20%3D%20", vals[i][0], "%20or%20");
-        }
-      
-        var interStr = inter.join("");
-        var temp = getDataForAPI(interStr);
-        if(temp == "") return temp;
-        data =  JSON.parse(temp);  
-        allData.issues = allData.issues.concat(data.issues);
-        startAt = data.startAt + data.maxResults;
-    }  
+    Logger.log("Making request for %s entries", C_MAX_RESULTS);
+    var inter = ["search?jql="];
+    if(divideby*batchsize+batchsize>=vals.length) var numberofrepeats = vals.length;
+    else numberofrepeats = divideby*batchsize + batchsize;
+    for (var i = divideby*batchsize; i < numberofrepeats; i++) {
+       if(i==numberofrepeats-1) inter.push("issue%20%3D%20", vals[i][0], "%20order%20by%20rank%20&maxResults=", C_MAX_RESULTS, "&startAt=", startAt);
+       else inter.push("issue%20%3D%20", vals[i][0], "%20or%20");
+    }
+   
+    var interStr = inter.join("");
+    var temp = getDataForAPI(interStr);
+    if(temp == "") return temp;
+    data =  JSON.parse(temp);  
+    allData.issues = allData.issues.concat(data.issues);
+    startAt = data.startAt + data.maxResults;
     return allData;
 }  
 
 function getDataForAPI(path) {
   var ss = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    var lRow=ss.getLastRow();
     var sheeturl = SpreadsheetApp.getActiveSpreadsheet().getUrl();
     var url = "https://" + PropertiesService.getUserProperties().getProperty("host") + "/rest/api/2/" + path;
     var digestfull = PropertiesService.getUserProperties().getProperty("digest");
@@ -376,7 +351,6 @@ function getDataForAPI(path) {
 
 function getStory(data,headings) {
   var ss = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    var lRow=ss.getLastRow();
     var sheeturl = SpreadsheetApp.getActiveSpreadsheet().getUrl();
     var story = [];
     for (var i = 0;i<headings.length;i++) {
@@ -429,7 +403,6 @@ function getStory(data,headings) {
 
 function getDataForHeading(data,heading) {
   var ss = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    var lRow=ss.getLastRow();
     var sheeturl = SpreadsheetApp.getActiveSpreadsheet().getUrl();
     if (data.hasOwnProperty(heading)) {
         return data[heading];
