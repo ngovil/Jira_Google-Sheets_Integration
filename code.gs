@@ -13,6 +13,10 @@ bool=true;
 batchsize = 30;
 
 
+function onInstall(e){
+  onOpen(e); 
+}
+
 function onOpen(e){
 
   //var menu = SpreadsheetApp.getUi().createAddonMenu();
@@ -246,12 +250,13 @@ function jiraPull() {
     }
    for(var divideby = 0; divideby < Math.ceil(vals.length/batchsize); divideby++){
     var data = getStories(divideby);
+     
     if (data == "") {
         return;
     }
     var numberofrepeats = -1;
     var beginat = -1;
-    if(divideby*batchsize+batchsize>=vals.length) numberofrepeats = vals.length;
+    if(divideby*batchsize+batchsize>=vals.length) numberofrepeats = vals2.length;
     else{
        for(var i=0; i<vals2.length; i++){
          if(vals2[i][0] === vals[divideby*batchsize + batchsize][0]){
@@ -266,7 +271,6 @@ function jiraPull() {
            i=vals2.length;
          }
      }
-     
     for (var i=beginat;i<numberofrepeats;i++) {
         if(vals2[i][0].indexOf("FRED")==-1){
             var temp = new Array();
