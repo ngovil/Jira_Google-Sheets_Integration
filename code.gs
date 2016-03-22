@@ -268,15 +268,24 @@ function jiraPull() {
             for(var a=0; a<colHeads.length; a++) temp.push("");
             y.push(temp);
         }else{
-            var inter = issueData.issues[0].key;
-            var o=0;
-            while(inter != vals2[i][0]){
-                 o++;
-                 inter = issueData.issues[o].key;
+            var inter;
+            var o=-1;
+            for(var a=0; a<issueData.issues.length; a++){
+              inter = issueData.issues[a].key;
+              if(inter == vals2[i][0]){
+                o=a;
+                a=issueData.issues.length;
+              }
             }
-            var d=issueData.issues[o];
-            var test = getStory(d,headings);
-            y.push(getStory(d,headings));
+            if(o==-1){
+              var temp = new Array();
+              for(var a=0; a<colHeads.length; a++) temp.push("");
+              y.push(temp);
+            }else{
+              var d=issueData.issues[o];
+              var test = getStory(d,headings);
+              y.push(getStory(d,headings));
+            }
         }
     }
     if (y.length>0) {
