@@ -248,47 +248,37 @@ function jiraPull() {
         Browser.msgBox("Error pulling data from Jira - aborting now. \\n \\n Please check if you have correctly named your headings.");
         return;
     }
+   var temporary = new Array();
    for(var divideby = 0; divideby < Math.ceil(vals.length/batchsize); divideby++){
-    var data = getStories(divideby);
-     
-    if (data == "") {
-        return;
+     var data = getStories(divideby);
+     temporary.push(data);
+     if (data == "") {
+         return;
+     }
+  } 
+  var issueData = temporary[0];
+  for(var number = 1; number<temporary.length; number++){
+     for(var i=0; i<temporary[number]['issues'].length; i++){
+       issueData['issues'].push(temporary[number]['issues'][i]); 
     }
-    var numberofrepeats = -1;
-    var beginat = -1;
-    if(divideby*batchsize+batchsize>=vals.length) numberofrepeats = vals2.length;
-    else{
-       for(var i=0; i<vals2.length; i++){
-         if(vals2[i][0] === vals[divideby*batchsize + batchsize][0]){
-           numberofrepeats = i;
-           i=vals2.length;
-         }
-       }
-     }
-     for(var i=0; i<vals2.length; i++){
-         if(vals2[i][0] === vals[divideby*batchsize][0]){
-           beginat = i;
-           i=vals2.length;
-         }
-     }
-    for (var i=beginat;i<numberofrepeats;i++) {
+  }
+   for (var i=0;i<vals2.length;i++) {
         if(vals2[i][0].indexOf("FRED")==-1){
             var temp = new Array();
             for(var a=0; a<colHeads.length; a++) temp.push("");
             y.push(temp);
         }else{
-            var inter = data.issues[0].key;
+            var inter = issueData.issues[0].key;
             var o=0;
             while(inter != vals2[i][0]){
                  o++;
-                 inter = data.issues[o].key;
+                 inter = issueData.issues[o].key;
             }
-            var d=data.issues[o];
+            var d=issueData.issues[o];
             var test = getStory(d,headings);
             y.push(getStory(d,headings));
         }
     }
-} 
     if (y.length>0) {
         for(var k=0; k<y.length; k++){
             var x=0;
