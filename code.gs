@@ -102,7 +102,7 @@ function doGet() {
     var mydoc = SpreadsheetApp.getActiveSpreadsheet();
     var app = UiApp.createApplication().setTitle("Jira Headings").setWidth(250).setHeight(420);
     var panel = app.createVerticalPanel().setId('panel');
-    app.add(app.createLabel("Please check the JIRA headings you wish to include and type in the corresponding column headings."));
+    app.add(app.createLabel("Please check the JIRA headings you wish to include and select the corresponding column headings."));
     app.add(app.createHTML("<br/>"));
     panel.add(app.createHidden('checkbox_total', LIST.length));
     for(var i = 0; i < LIST.length; i++){
