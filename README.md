@@ -2,7 +2,7 @@
 
 This is a Google add-on that is able to automate the transfer and updating of the JIRA issues into a Google Sheet.
 
-It has been created for the Naehas and is set uniquely for that company, however it is possible to change the code to adjust for different companies. You would need to change the host name (it is currently set at "naehas.jira.com:), the project that contains the keys you wish to import (it is currently "FRED"), you would need to remove the sections that corrospond to any custom fields, and add any custom fields that your project uses. Please feel free to email me at neha.j.govil@gmail.com for any further help.
+It has been created for the Naehas and is set uniquely for that company, however it is possible to change the code to adjust for different companies. You would need to change the host name (it is currently set at "naehas.jira.com:), the project that contains the keys you wish to import (it is currently "FRED"), you would need to remove the sections that correspond to any custom fields, and add any custom fields that your project utilizes. Please feel free to email me at neha.j.govil@gmail.com for any further help.
 
 The first time this add-on is used on a particular sheet, it must be configured by inputting the categories to be imported and their corresponding heading names. After entering the credentials, all that must be done is press “Refresh Now” and the data in the sheet will refresh. The data is drawn through using URL fetch to collect the information from the JIRA Rest API. After that, there is a lot of parsing and rearranging in order to display the data appropriately, based on your configurations. 
 
