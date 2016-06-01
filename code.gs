@@ -34,7 +34,7 @@ function findColHeads(){
   var cols = ss.getRange(1,1,1,ss.getLastColumn()).getValues();
   columns.length = 0;
   for(var i=0; i<cols[0].length; i++){
-      if(cols[0][i].replace(" ", "") != "") columns.push(cols[0][i]);
+      if(typeof cols[0][i] == "string" && cols[0][i].replace(" ", "") != "") columns.push(cols[0][i]);
   }
 }
 
@@ -187,7 +187,8 @@ function jiraPullManual() {
             }
         }
       for(var a=0; a<ss.getLastColumn(); a++){ 
-        if(ss.getRange(1,a+1,1,a+1).getCell(1, 1).getValue().toLowerCase() == jira.toLowerCase()) key=a+1;
+        var tempvalue = ss.getRange(1,a+1,1,a+1).getCell(1, 1).getValue();
+        if(typeof tempvalue == "string" && tempvalue.toLowerCase() == jira.toLowerCase()) key=a+1;
       }
         var inter = 2;
         var temp2 = ss.getRange(2, key, ss.getLastRow()+1, key).getValues();
@@ -202,7 +203,7 @@ function jiraPullManual() {
         var temp = new Array();
         var temp2 = new Array();
         for(var i=0; i<lRow; i++){
-            if(vals[i][0] != ""){
+            if(vals[i][0] != "" && vals[i][0].indexOf("FRED") > -1){
                 if(vals[i][0].indexOf(" ")>-1){
                     vals[i][0] = vals[i][0].replace(/\s/g, '');
                 }
