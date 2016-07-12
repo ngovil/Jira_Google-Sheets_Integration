@@ -204,9 +204,8 @@ function jiraPullManual() {
         var temp2 = new Array();
         for(var i=0; i<lRow; i++){
             if(vals[i][0] != "" && vals[i][0].indexOf("FRED") > -1){
-                if(vals[i][0].indexOf(" ")>-1){
-                    vals[i][0] = vals[i][0].replace(/\s/g, '');
-                }
+                vals[i][0] = vals[i][0].replace(/\s/g, '');
+                vals[i][0].replace(/(\r\n|\n|\r)/gm,"");
                 if(vals[i][0].indexOf("jira.naehas.com")>-1){
                     vals[i][0] = vals[i][0].replace("https://jira.naehas.com/browse/", "");
                 }
